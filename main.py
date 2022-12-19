@@ -44,8 +44,6 @@ def addJoin(sentence):
 
     xmlIdAttribute = '{http://www.w3.org/XML/1998/namespace}id'
     keySentence = sentence.get(xmlIdAttribute)
-
-    #print("entro in addJoin con sentence id == " + keySentence)
     __tokenIdtoSpan = __dictionaryIDtoSpan[keySentence]
 
     # prima costruisco la mappa associativa tra __joinMap : ID ---> bool
@@ -151,95 +149,6 @@ def mainValidate() :
         print(relaxng.error_log)
 
 
-def mainCount() :
-
-    ET.register_namespace('','http://www.tei-c.org/ns/1.0')
-
-    annoSedute = sys.argv[1]
-    DirectoryParent = os.getcwd()
-
-    sTag = '{http://www.tei-c.org/ns/1.0}s'
-    wTag = '{http://www.tei-c.org/ns/1.0}w'
-    pcTag = '{http://www.tei-c.org/ns/1.0}pc'
-    nameTag = '{http://www.tei-c.org/ns/1.0}name'
-    # linkGrpTag = '{http://www.tei-c.org/ns/1.0}linkGrp' # non lo conto: il numero è uguale a sTag
-    linkTag = '{http://www.tei-c.org/ns/1.0}link'
-
-
-    __numberOftagS_Globale = 0
-    __numberOftagW_Globale = 0
-    __numberOftagName_Globale = 0
-    __numberOftagPc_Globale = 0
-    __numberOftagLinkGrp_Globale = 0
-    __numberOftagLink_Globale = 0
-
-    anchorTag = '{http://www.tei-c.org/ns/1.0}namespace'
-    # subNode di tagsDecl: qui ci vanno pmessi i tag relativi ai conteggi
-    # anchorTag = '{http://www.tei-c.org/ns/1.0}tagsDecl'
-
-    for filename in os.listdir(annoSedute):
-        #print(filename)
-        os.chdir(DirectoryParent)
-        os.chdir(annoSedute)
-        if filename.find(".ana.xml") != -1 :
-            print(filename)
-            tree = ET.parse(filename)
-            root = tree.getroot()
-            #__numberOftagS = sum(1 for _ in root.iter(sTag))
-            __numberOftagS = len(list(root.iter(sTag)))
-            __numberOftagW = len(list(root.iter(wTag)))
-            __numberOftagName = len(list(root.iter(nameTag)))
-            __numberOftagPc = len(list(root.iter(pcTag)))
-            __numberOftagLinkGrp = __numberOftagS
-            __numberOftagLink = len(list(root.iter(linkTag)))
-            for anchorNode in root.iter(anchorTag) :
-                # c'è un solo anchorNode !!
-                elementTagUsage = ET.SubElement(anchorNode, 'tagUsage')
-                elementTagUsage.set("gi",'s')
-                elementTagUsage.set("occurs",str(__numberOftagS))
-                ############
-                elementTagUsage = ET.SubElement(anchorNode, 'tagUsage')
-                elementTagUsage.set("gi",'w')
-                elementTagUsage.set("occurs",str(__numberOftagW))
-                ############
-                elementTagUsage = ET.SubElement(anchorNode, 'tagUsage')
-                elementTagUsage.set("gi",'pc')
-                elementTagUsage.set("occurs",str(__numberOftagPc))
-                ############
-                elementTagUsage = ET.SubElement(anchorNode, 'tagUsage')
-                elementTagUsage.set("gi",'name')
-                elementTagUsage.set("occurs",str(__numberOftagName))
-                ############
-                elementTagUsage = ET.SubElement(anchorNode, 'tagUsage')
-                elementTagUsage.set("gi",'linkGrp')
-                elementTagUsage.set("occurs",str(__numberOftagLinkGrp))
-                ############
-                elementTagUsage = ET.SubElement(anchorNode, 'tagUsage')
-                elementTagUsage.set("gi",'link')
-                elementTagUsage.set("occurs",str(__numberOftagLink))
-
-            __numberOftagS_Globale += __numberOftagS
-            __numberOftagW_Globale += __numberOftagW
-            __numberOftagName_Globale += __numberOftagName
-            __numberOftagPc_Globale += __numberOftagPc
-            __numberOftagLinkGrp_Globale += __numberOftagLinkGrp
-            __numberOftagLink_Globale += __numberOftagLink
-
-            tree.write(filename,encoding="UTF-8")
-
-
-    tf = open("fileLog" + annoSedute + ".txt","w")
-    print("__numberOftagS_Globale = " + str(__numberOftagS_Globale),file=tf)
-    print("__numberOftagW_Globale = " + str(__numberOftagW_Globale),file=tf)
-    print("__numberOftagName_Globale = " + str(__numberOftagName_Globale),file=tf)
-    print("__numberOftagPc_Globale = " + str(__numberOftagPc_Globale),file=tf)
-    print("__numberOftagLinkGrp_Globale = " + str(__numberOftagLinkGrp_Globale),file=tf)
-    print("__numberOftagLink_Globale = " + str(__numberOftagLink_Globale),file=tf)
-
-    tf.close()
-
-
-
 
 
 def main():
@@ -274,9 +183,9 @@ def main():
             os.chdir(outDirectorySeduta)
             #for (segmento, testo) in segAndTestoPairList:
             for segmentElement in segmentList:
+                # print("   secondo Ciclo for with " + segmento, end = " ")
                 # print(os.getcwd())
                 id_segmento = segmentElement.attrib['{http://www.w3.org/XML/1998/namespace}id']
-                # print("   secondo Ciclo for with " + id_segmento, end=" ")
                 testo = segmentElement.text
                 nomeFileOutput = id_segmento + ".ud.udner"
                 doc = nlp(testo)
@@ -296,9 +205,9 @@ def main():
 
     #fileLog.close()
 
-    # tf = open("fileLogJson.txt", "a")
-    # json.dump(__dictionaryIDtoSpan, tf, indent=4)
-    # tf.close()
+    tf = open("fileLogJson.txt", "a")
+    json.dump(__dictionaryIDtoSpan, tf, indent=4)
+    tf.close()
 
 
 
@@ -309,4 +218,4 @@ def main():
 
 main()
 #mainValidate()
-#mainCount()
+
